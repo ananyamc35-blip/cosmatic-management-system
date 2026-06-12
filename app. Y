@@ -1,0 +1,132 @@
+from flask import Flask, render_template, request, redirect
+
+app = Flask(__name__)
+
+products = []
+
+@app.route('/')
+def home():
+    return render_template('index.html', products=products)
+
+@app.route('/add', methods=['GET', 'POST'])
+def add_product():
+    if request.method == 'POST':
+        product = {
+            'id': len(products) + 1,
+            'name': request.form['name'],
+            'brand': request.form['brand'],
+            'price': request.form['price'],
+            'quantity': request.form['quantity']
+        }
+        products.append(product)
+        return redirect('/')
+    return render_template('add_product.html')
+
+@app.route('/delete/<int:id>')
+def delete_product(id):
+    global products
+    products = [p for p in products if p['id'] != id]
+    return redirect('/')
+
+if __name__ == '__main__':
+    app.run(debug=True)
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cosmetics Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1>Cosmetics Management System</h1>
+
+<a href="/add">Add Product</a>
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Brand</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Action</th>
+    </tr>
+
+    {% for product in products %}
+    <tr>
+        <td>{{ product.id }}</td>
+        <td>{{ product.name }}</td>
+        <td>{{ product.brand }}</td>
+        <td>{{ product.price }}</td>
+        <td>{{ product.quantity }}</td>
+        <td>
+            <a href="/delete/{{ product.id }}">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Product</title>
+</head>
+<body>
+
+<h2>Add Cosmetic Product</h2>
+
+<form method="POST">
+    <label>Product Name:</label><br>
+    <input type="text" name="name" required><br><br>
+
+    <label>Brand:</label><br>
+    <input type="text" name="brand" required><br><br>
+
+    <label>Price:</label><br>
+    <input type="number" name="price" required><br><br>
+
+    <label>Quantity:</label><br>
+    <input type="number" name="quantity" required><br><br>
+
+    <button type="submit">Add Product</button>
+</form>
+
+<br>
+<a href="/">Back</a>
+
+</body>
+</html>
+body {
+    font-family: Arial, sans-serif;
+    margin: 30px;
+}
+
+h1 {
+    color: #d63384;
+}
+
+table {
+    width: 80%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+th {
+    background-color: #f8c8dc;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+}
+
+a {
+    text-decoration: none;
+    color: blue;
+}
